@@ -82,4 +82,9 @@ describe Vx::ServiceConnector::Github::Payload do
     its(:ignore?) { should be_true }
   end
 
+  context "[skip ci] on all pushed commits" do
+    let(:content) { read_json_fixture("github/payload/push_ci_skip") }
+    its(:ignore?) { should be_true }
+  end
+
 end

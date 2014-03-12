@@ -68,28 +68,24 @@ module Vx
           end
         end
 
-        def message
+        def commit
           if pull_request?
-            commit_for_pull_request.message
+            commit_for_pull_request
           else
-            head_commit["message"]
+            head_commit
           end
+        end
+
+        def message
+          commit["message"]
         end
 
         def author
-          if pull_request?
-            commit_for_pull_request.author.name
-          else
-            head_commit? && head_commit["author"]["name"]
-          end
+          commit["author"]["name"]
         end
 
         def author_email
-          if pull_request?
-            commit_for_pull_request.author.email
-          else
-            head_commit? && head_commit["author"]["email"]
-          end
+          commit["author"]["email"]
         end
 
         def pull_request_head_repo_id
@@ -112,14 +108,17 @@ module Vx
           pull_request? && (pull_request_head_repo_id != pull_request_base_repo_id)
         end
 
+        def ci_skip?
+          self['commits'].all?{ |commit| CommitCommand.new(commit["message"]).skip? }
+        end
+
         def ignore?
           if pull_request?
             closed_pull_request? || !foreign_pull_request?
           else
-            sha == '0000000000000000000000000000000000000000' || tag?
+            sha == '0000000000000000000000000000000000000000' || tag? || ci_skip?
           end
         end
-
 
         def commit_for_pull_request
           @commit_for_pull_request ||=
@@ -152,6 +151,26 @@ module Vx
           params[val]
         end
 
+        class CommitCommand
+          def initialize(message)
+            @message = message.to_s
+          end
+
+          def skip?
+            backwards_skip or command == 'skip'
+          end
+
+          private
+          attr_reader :message
+
+          def command
+            message =~ /\[ci(?: |:)([\w ]*)\]/i && $1.downcase
+          end
+
+          def backwards_skip
+            message =~ /\[skip\s+ci\]/i && true
+          end
+        end
       end
 
     end
