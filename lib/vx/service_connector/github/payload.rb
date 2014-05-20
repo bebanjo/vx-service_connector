@@ -109,7 +109,11 @@ module Vx
         end
 
         def ci_skip?
-          self['commits'].all?{ |commit| CommitCommand.new(commit["message"]).skip? }
+          commits? && self['commits'].all?{ |commit| CommitCommand.new(commit["message"]).skip? }
+        end
+
+        def commits?
+          key? 'commits'
         end
 
         def ignore?

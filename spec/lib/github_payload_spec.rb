@@ -87,4 +87,9 @@ describe Vx::ServiceConnector::Github::Payload do
     its(:ignore?) { should be_true }
   end
 
+  context "missing commits on pushed parameters" do
+    let(:content) { read_json_fixture("github/payload/push").tap{ |hash| hash.delete('commits') }}
+    its(:ignore?) { should be_false }
+  end
+
 end
