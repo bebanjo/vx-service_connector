@@ -80,12 +80,16 @@ module Vx
           commit["message"]
         end
 
+        def author?
+          commit && commit["author"]
+        end
+
         def author
-          commit["author"]["name"]
+          author? && commit["author"]["name"]
         end
 
         def author_email
-          commit["author"]["email"]
+          author? && commit["author"]["email"]
         end
 
         def pull_request_head_repo_id
