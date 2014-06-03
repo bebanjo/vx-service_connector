@@ -117,7 +117,7 @@ module Vx
         end
 
         def commits?
-          key? 'commits'
+          key?('commits') && self['commits'] && self['commits'].size > 0
         end
 
         def ignore?

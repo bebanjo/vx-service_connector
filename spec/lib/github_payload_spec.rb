@@ -92,4 +92,9 @@ describe Vx::ServiceConnector::Github::Payload do
     its(:ignore?) { should be_false }
   end
 
+  context "empty commits on pushed parameters" do
+    let(:content) { read_json_fixture("github/payload/push").tap{ |hash| hash['commits'] = [] }}
+    its(:ignore?) { should be_false }
+  end
+
 end
