@@ -120,9 +120,15 @@ module Vx
           key?('commits') && self['commits'] && self['commits'].size > 0
         end
 
+        def ping_request?
+          self["zen"].to_s.size > 0
+        end
+
         def ignore?
           if pull_request?
             closed_pull_request? || !foreign_pull_request?
+          elsif ping_request?
+            true
           else
             sha == '0000000000000000000000000000000000000000' || tag? || ci_skip?
           end
