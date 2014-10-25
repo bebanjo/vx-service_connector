@@ -20,7 +20,7 @@ require 'spec_helper'
         mock_get_commit 1, sha
       end
 
-      its(:pull_request?)       { should be_false }
+      its(:pull_request?)       { should be_falsey }
       its(:pull_request_number) { should be_nil }
       its(:sha)                 { should eq sha }
       its(:branch)              { should eq 'testing' }
@@ -29,7 +29,7 @@ require 'spec_helper'
       its(:author)              { should eq 'Dmitriy Zaporozhets' }
       its(:author_email)        { should eq 'dzaporozhets@sphereconsultinginc.com' }
       its(:web_url)             { should eq url }
-      its(:ignore?)             { should be_false }
+      its(:ignore?)             { should be_falsey }
     end
   end
 end

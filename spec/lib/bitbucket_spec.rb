@@ -13,7 +13,7 @@ describe Vx::ServiceConnector::Bitbucket do
 
   subject { bitbucket }
 
-  it { should be }
+  it { is_expected.to be }
 
   context "(commits)" do
     let(:commits) { bitbucket.commits(repo) }
@@ -23,8 +23,8 @@ describe Vx::ServiceConnector::Bitbucket do
       c = commits.last
       expect(c).to be
       expect(c.message).to eq "test\n"
-      expect(c.skip).to be_false
-      expect(c.pull_request?).to be_false
+      expect(c.skip).to be_falsey
+      expect(c.pull_request?).to be_falsey
       expect(c.branch).to eq 'test'
       expect(c.branch_label).to eq 'test'
       expect(c.sha).to eq '5bf6aff99e8350c493ecce2016c50d977de88d6f'
@@ -45,12 +45,14 @@ describe Vx::ServiceConnector::Bitbucket do
       mock_user_privileges
     end
 
-    it { should have(3).item }
+    it 'has 3 item' do
+      expect(subject.size).to eq(3)
+    end
 
     context "values" do
       subject { bitbucket.repos.map(&:values) }
 
-      it { should eq(
+      it { is_expected.to eq(
 
         [
           ["121111foobar/vx-promo",
@@ -84,13 +86,15 @@ describe Vx::ServiceConnector::Bitbucket do
     context "all" do
       subject { deploy_keys.all }
       before { mock_deploy_keys }
-      it { should have(1).item }
+      it 'has 1 item' do
+        expect(subject.size).to eq(1)
+      end
     end
 
     context "create" do
       subject { deploy_keys.create key_name, public_key }
       before { mock_add_deploy_key }
-      it { should be }
+      it { is_expected.to be }
     end
 
     context "destroy" do
@@ -100,7 +104,9 @@ describe Vx::ServiceConnector::Bitbucket do
         mock_delete_deploy_key
       end
 
-      it { should have(1).item }
+      it 'has 1 item' do
+        expect(subject.size).to eq(1)
+      end
     end
   end
 
@@ -112,13 +118,15 @@ describe Vx::ServiceConnector::Bitbucket do
     context "all" do
       subject { hooks.all }
       before { mock_hooks }
-      it { should have(2).item }
+      it 'has 2 item' do
+        expect(subject.size).to eq(2)
+      end
     end
 
     context "create" do
       subject { hooks.create url, token }
       before { mock_add_hook }
-      it { should be }
+      it { is_expected.to be }
     end
 
     context "destroy" do
@@ -128,7 +136,9 @@ describe Vx::ServiceConnector::Bitbucket do
         mock_hooks
         mock_remove_hook
       end
-      it { should have(2).item }
+      it 'has 2 item' do
+        expect(subject.size).to eq(2)
+      end
     end
   end
 

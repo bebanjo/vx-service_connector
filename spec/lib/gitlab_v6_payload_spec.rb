@@ -20,7 +20,7 @@ describe Vx::ServiceConnector::GitlabV6::Payload do
       mock_project 1
     end
 
-    its(:pull_request?)       { should be_true }
+    its(:pull_request?)       { should be_truthy }
     its(:pull_request_number) { should eq 5 }
     its(:sha)                 { should eq sha }
     its(:branch)              { should eq 'some-branch-name' }
@@ -28,7 +28,7 @@ describe Vx::ServiceConnector::GitlabV6::Payload do
     its(:author)              { should eq 'Dmitriy Zaporozhets' }
     its(:author_email)        { should eq 'dzaporozhets@sphereconsultinginc.com' }
     its(:web_url)             { should eq "http://localhost/example/sqerp/merge_requests/5" }
-    its(:ignore?)             { should be_false }
+    its(:ignore?)             { should be_falsey }
   end
 
   context "push tag" do
@@ -39,7 +39,7 @@ describe Vx::ServiceConnector::GitlabV6::Payload do
     end
 
     let(:content) { read_json_fixture("gitlab_v6/payload/push_tag") }
-    its(:ignore?) { should be_true }
+    its(:ignore?) { should be_truthy }
   end
 
   context "closed pull request" do
@@ -49,7 +49,7 @@ describe Vx::ServiceConnector::GitlabV6::Payload do
       mock_project 1
     end
 
-    its(:ignore?) { should be_true }
+    its(:ignore?) { should be_truthy }
   end
 
   context "merged pull request" do
@@ -59,6 +59,6 @@ describe Vx::ServiceConnector::GitlabV6::Payload do
       mock_project 1
     end
 
-    its(:ignore?) { should be_true }
+    its(:ignore?) { should be_truthy }
   end
 end

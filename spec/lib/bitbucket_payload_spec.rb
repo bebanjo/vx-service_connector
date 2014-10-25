@@ -15,8 +15,8 @@ describe Vx::ServiceConnector::Bitbucket::Payload do
   context 'push' do
     let(:url) { "https://bitbucket.org/121111foobar/vx-promo/commits/e4958d88c9055ca471618f004c6f6b2d79965267"}
 
-    its(:ignore?)             { should be_false }
-    its(:pull_request?)       { should be_false }
+    its(:ignore?)             { should be_falsey }
+    its(:pull_request?)       { should be_falsey }
     its(:pull_request_number) { should be_nil }
     its(:branch)              { should eq 'master' }
     its(:branch_label)        { should eq 'master' }
@@ -36,8 +36,8 @@ describe Vx::ServiceConnector::Bitbucket::Payload do
       mock_get_commit '121111foobar/vx-promo', sha
     end
 
-    its(:ignore?)             { should be_true }
-    its(:pull_request?)       { should be_true }
+    its(:ignore?)             { should be_truthy }
+    its(:pull_request?)       { should be_truthy }
     its(:pull_request_number) { should eq 1 }
     its(:branch)              { should eq 'test' }
     its(:branch_label)        { should eq 'test' }
@@ -55,7 +55,7 @@ describe Vx::ServiceConnector::Bitbucket::Payload do
       mock_get_commit 'login/api-test', 'b8aed32b8a30'
     end
 
-    its(:ignore?) { should be_true }
+    its(:ignore?) { should be_truthy }
   end
 
   context 'foreign pull request' do
@@ -65,7 +65,7 @@ describe Vx::ServiceConnector::Bitbucket::Payload do
       mock_get_commit 'other_login/api-test', 'b8aed32b8a30'
     end
 
-    its(:ignore?) { should be_false }
+    its(:ignore?) { should be_falsey }
   end
 
   context 'pull request with same repo' do
@@ -76,7 +76,7 @@ describe Vx::ServiceConnector::Bitbucket::Payload do
        mock_get_commit '121111foobar/vx-promo', 'b14806535f5e'
     end
 
-    its(:ignore?) { should be_true }
+    its(:ignore?) { should be_truthy }
   end
 
 end

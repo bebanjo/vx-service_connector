@@ -11,7 +11,7 @@ describe Vx::ServiceConnector::Github do
 
   subject { github }
 
-  it { should be }
+  it { is_expected.to be }
 
   context "(commits)" do
     let(:commits) { github.commits(repo) }
@@ -22,8 +22,8 @@ describe Vx::ServiceConnector::Github do
       c = commits.last
       expect(c).to be
       expect(c.message).to eq "Fix all the bugs"
-      expect(c.skip).to be_false
-      expect(c.pull_request?).to be_false
+      expect(c.skip).to be_falsey
+      expect(c.pull_request?).to be_falsey
       expect(c.branch).to eq 'master'
       expect(c.branch_label).to eq 'master'
       expect(c.sha).to eq '6dcb09b5b57875f334f61aebed695e2e4193db5e'
@@ -45,7 +45,7 @@ describe Vx::ServiceConnector::Github do
         context "#{k}" do
           subject { notices.create sha, k, url, desc }
           before { mock_create_notice(v) }
-          it { should be }
+          it { is_expected.to be }
         end
       end
     end
@@ -60,11 +60,13 @@ describe Vx::ServiceConnector::Github do
       mock_orgs
     end
 
-    it { should have(2).item }
+    it 'has 2 item' do
+      expect(subject.size).to eq(2)
+    end
 
     context "values" do
       subject { github.repos.map(&:values) }
-      it { should eq(
+      it { is_expected.to eq(
         [[1296269, "octocat/user", false,
           "git@github.com:octocat/Hello-World.git",
           "https://github.com/octocat/Hello-World",
@@ -85,13 +87,15 @@ describe Vx::ServiceConnector::Github do
     context "all" do
       subject { deploy_keys.all }
       before { mock_deploy_keys }
-      it { should have(1).item }
+      it 'has 1 item' do
+        expect(subject.size).to eq(1)
+      end
     end
 
     context "create" do
       subject { deploy_keys.create key_name, public_key }
       before { mock_add_deploy_key }
-      it { should be }
+      it { is_expected.to be }
     end
 
     context "destroy" do
@@ -102,7 +106,9 @@ describe Vx::ServiceConnector::Github do
         mock_delete_deploy_key
       end
 
-      it { should have(1).item }
+      it 'has 1 item' do
+        expect(subject.size).to eq(1)
+      end
     end
   end
 
@@ -114,13 +120,15 @@ describe Vx::ServiceConnector::Github do
     context "all" do
       subject { hooks.all }
       before { mock_hooks }
-      it { should have(1).item }
+      it 'has 1 item' do
+        expect(subject.size).to eq(1)
+      end
     end
 
     context "create" do
       subject { hooks.create url, token }
       before { mock_add_hook }
-      it { should be }
+      it { is_expected.to be }
     end
 
     context "destroy" do
@@ -130,7 +138,9 @@ describe Vx::ServiceConnector::Github do
         mock_hooks
         mock_remove_hook
       end
-      it { should have(1).item }
+      it 'has 1 item' do
+        expect(subject.size).to eq(1)
+      end
     end
   end
 
@@ -143,12 +153,12 @@ describe Vx::ServiceConnector::Github do
 
       context "success" do
         before { mock_get_file  }
-        it { should eq 'content' }
+        it { is_expected.to eq 'content' }
       end
 
       context "not found" do
         before { mock_get_file_not_found }
-        it { should be_nil }
+        it { is_expected.to be_nil }
       end
     end
   end
