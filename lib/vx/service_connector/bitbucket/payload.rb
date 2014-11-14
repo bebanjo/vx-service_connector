@@ -4,24 +4,31 @@ module Vx
       Payload = Struct.new(:session, :params) do
 
         def build
-          ServiceConnector::Model::Payload.new(
-            !!ignore?,
-            pull_request?,
-            pull_request_number,
-            branch,
-            branch_label,
-            sha,
-            message,
-            author,
-            author_email,
-            web_url
+          ServiceConnector::Model::Payload.from_hash(
+            internal_pull_request?: (pull_request? && !foreign_pull_request?),
+            foreign_pull_request?:  foreign_pull_request?,
+            pull_request_number:    pull_request_number,
+            branch:                 branch,
+            branch_label:           branch_label,
+            sha:                    sha,
+            message:                message,
+            author:                 author,
+            author_email:           author_email,
+            web_url:                web_url,
+            tag:                    tag_name,
+            skip:                   ignore?,
           )
         end
 
         private
 
+        # TODO: implement
+        def tag_name
+          nil
+        end
+
         def pull_request?
-          !key? 'repository'
+          !(key? 'repository') && pull_request
         end
 
         def pull_request_number
@@ -55,7 +62,7 @@ module Vx
         def web_url
           if pull_request?
             pull_request['links'] ? pull_request['links']['html']['href'] : nil
-          else
+          elsif head_commit && params['repository']
             "https://bitbucket.org#{params['repository']['absolute_url']}commits/#{head_commit['raw_node']}"
           end
         end
@@ -76,16 +83,24 @@ module Vx
           end
         end
 
+        def commits?
+          params['commits'] && !(params['commits'].empty?)
+        end
+
         def author_email
           if pull_request?
             commit_for_pull_request["author"]["raw"][/.*<([^>]*)/,1]
           else
-            head_commit['raw_author'][/.*<([^>]*)/,1]
+            commits? && head_commit['raw_author'][/.*<([^>]*)/,1]
           end
         end
 
-        def close_pull_request?
-          pull_request? && (pull_request['state'] && %w(DECLINED MERGED).include?(pull_request['state']))
+        def closed_pull_request?
+          %w(DECLINED MERGED).include?(pull_request_state)
+        end
+
+        def pull_request_state
+          pull_request? and pull_request.is_a?(Hash) and pull_request['state']
         end
 
         def pull_request_head_repo_full_name
@@ -97,14 +112,16 @@ module Vx
         end
 
         def foreign_pull_request?
-          pull_request_head_repo_full_name != pull_request_base_repo_full_name
+          if pull_request?
+            pull_request_head_repo_full_name != pull_request_base_repo_full_name
+          end
         end
 
         def ignore?
           if pull_request?
-            close_pull_request? || !foreign_pull_request?
+            closed_pull_request?
           else
-            sha == '0000000000000000000000000000000000000000'
+            sha == '0000000000000000000000000000000000000000' || !commits?
           end
         end
 
@@ -115,11 +132,13 @@ module Vx
         end
 
         def head_commit
-          params['commits'].last || {}
+          ( params['commits'] && params['commits'].last ) || {}
         end
 
         def pull_request
-          params.first.last
+          @pull_request ||= begin
+            params.first.last.is_a?(Hash) && params.first.last
+          end
         end
 
         def key?(name)

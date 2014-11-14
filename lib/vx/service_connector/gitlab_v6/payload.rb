@@ -6,7 +6,7 @@ module Vx
 
         def build
           ServiceConnector::Model::Payload.new(
-            !!ignore?,
+            !valid?,
             !!pull_request?,
             pull_request_number,
             branch,
@@ -17,9 +17,31 @@ module Vx
             author_email,
             web_url
           )
+          ServiceConnector::Model::Payload.from_hash(
+            internal_pull_request?: (pull_request? && !foreign_pull_request?),
+            foreign_pull_request?:  foreign_pull_request?,
+            pull_request_number:    pull_request_number,
+            branch:                 branch,
+            branch_label:           branch_label,
+            sha:                    sha,
+            message:                message,
+            author:                 author,
+            author_email:           author_email,
+            web_url:                web_url,
+            tag:                    tag_name,
+            skip:                   !valid?,
+          )
         end
 
         private
+
+        def valid?
+          if ignore?
+            false
+          else
+            message && author && author_email || false
+          end
+        end
 
         def message
           commit_for_payload["title"]
@@ -43,9 +65,9 @@ module Vx
 
         def ignore?
           if pull_request?
-            closed_pull_request? || !foreign_pull_request?
+            closed_pull_request?
           else
-            sha == '0000000000000000000000000000000000000000' || tag?
+            sha == '0000000000000000000000000000000000000000'
           end
         end
 
@@ -61,6 +83,10 @@ module Vx
 
         def pull_request?
           self["object_kind"] == "merge_request"
+        end
+
+        def tag_name
+          tag? and self['ref'].split("/tags/").last
         end
 
         def tag?
@@ -120,7 +146,7 @@ module Vx
             session.get("/projects/#{repo.id}")
           rescue RequestError => e
             $stderr.puts "ERROR: #{e.inspect}"
-            nil
+            {}
           end
         end
 
@@ -149,7 +175,7 @@ module Vx
         def commit_for_payload
           @commit_for_payload ||=
             begin
-              if not ignore?
+              if !ignore? && sha
                 session.get(commit_uri(repo.id, sha))
               else
                 {}
