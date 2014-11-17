@@ -26,7 +26,7 @@ module Vx
         :author_email,
         :web_url,
         :skip,
-        :tag,
+        :tag
       ) do
         def to_hash
           to_h
