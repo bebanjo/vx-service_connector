@@ -17,8 +17,8 @@ module Vx
             author:                 author,
             author_email:           author_email,
             web_url:                web_url,
-            tag:                    tag_name,
             skip:                   ignore?,
+            tag:                    tag_name
           )
         end
 
